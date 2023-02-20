@@ -73,4 +73,10 @@ export class AgriculturalHoldingService {
         try { return await this.agriculturalHolding.findOne({ where: { username: loginData.username } }); }
         catch (e) { return new RequestResponse(1050, "Agricultural holding search is currently not possible"); }
     }
+
+    // Method for search agricultural holding by agricultural holding id
+    async getById(data: number): Promise<AgriculturalHolding | null | RequestResponse> {
+        try { return await this.agriculturalHolding.findOne({ where: { agriculturalHoldingId: data } }); }
+        catch (e) { return new RequestResponse(1051, "Agricultural holding search is currently not possible"); }
+    }
 }

@@ -26,7 +26,7 @@ export class AuthAgriculturalHoldingController {
 
         // Returning requestResponse when usernam does not exist and if search have a error
         if (agriculturalHolding === null) {
-            return new RequestResponse(1051, "Username does not exist");
+            return new RequestResponse(1071, "Username does not exist");
         }
         if (agriculturalHolding instanceof RequestResponse) {
             return agriculturalHolding;
