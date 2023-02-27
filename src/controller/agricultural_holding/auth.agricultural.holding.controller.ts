@@ -10,6 +10,7 @@ import { JwtDataAgriculturalHoldingDto } from "src/dto/agricultural_holding/jwt.
 import { jwtSecret } from "src/config/jwt.cofiguration";
 import { LoginInfoAgriculturalHoldingDto } from "src/dto/agricultural_holding/login.info.agricultural.holding.dto";
 import { validateObjectPropertyType } from "src/functions/validate.dto.objects";
+import { CheckAgriculturalHoldingStatusDto, checkAgriculturalHoldingStatusDtoTemplate } from "src/dto/agricultural_holding/check.agricultural.holding.status.dto";
 
 // Method for authentification on login
 @Controller('agricultural-holding/auth')
@@ -26,10 +27,13 @@ export class AuthAgriculturalHoldingController {
 
         // Returning requestResponse when usernam does not exist and if search have a error
         if (agriculturalHolding === null) {
-            return new RequestResponse(1071, "Username does not exist");
+            return new RequestResponse(1071, "Username or password is incorect");
         }
         if (agriculturalHolding instanceof RequestResponse) {
             return agriculturalHolding;
+        }
+        if (agriculturalHolding === undefined) {
+            return new RequestResponse(1072, "Username or password is incorect");
         }
 
         // Transforming password from data to passwordHash
@@ -37,7 +41,7 @@ export class AuthAgriculturalHoldingController {
         const passwordHashString = passwordHash.digest('hex').toUpperCase();
 
         // Compare password hashes from loginData and database
-        if (agriculturalHolding.passwordHash !== passwordHashString) { return new RequestResponse(1052, "Password is incorect") }
+        if (agriculturalHolding.passwordHash !== passwordHashString) { return new RequestResponse(1073, "Username or password is incorect") }
         else {
             // Crete jwtData object
             const jwtData: JwtDataAgriculturalHoldingDto = new JwtDataAgriculturalHoldingDto();
@@ -53,11 +57,32 @@ export class AuthAgriculturalHoldingController {
             const responseObject: LoginInfoAgriculturalHoldingDto = new LoginInfoAgriculturalHoldingDto(
                 agriculturalHolding.agriculturalHoldingId,
                 agriculturalHolding.agriculturalHoldingName,
-                agriculturalHolding.username,
                 token
             );
 
             return responseObject;
+        }
+    }
+
+    @Post("status")
+    async checkStatus(@Body() data: CheckAgriculturalHoldingStatusDto): Promise<boolean> {
+        // Validate data transfer object
+        if (validateObjectPropertyType(data, checkAgriculturalHoldingStatusDtoTemplate)) { return false }
+
+        try {
+            // Getting agricultural holding id from token
+            const agriculturalHoldingId = jwt.verify(data.token, jwtSecret).agriculturalHoldingId;
+           
+            // Search agricultural holding by id
+            const agriculturalHolding = await this.agriculturalHoldingService.getById(agriculturalHoldingId);
+
+            if (agriculturalHolding === null || agriculturalHolding instanceof RequestResponse) { return false }
+            else {
+                if (agriculturalHolding.agriculturalHoldingName !== data.agriculturalHoldingName) { return false }
+                else {return true;}
+            }
+        } catch (error) {
+            return false;
         }
     }
 }

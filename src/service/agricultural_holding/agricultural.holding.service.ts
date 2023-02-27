@@ -70,7 +70,10 @@ export class AgriculturalHoldingService {
 
     // Method for search agricultural holding by username
     async getByUsername(loginData: LoginAgriculturalHoldingDto): Promise<AgriculturalHolding | null | RequestResponse> {
-        try { return await this.agriculturalHolding.findOne({ where: { username: loginData.username } }); }
+        try {
+            const user = await this.agriculturalHolding.findOne({ where: { username: loginData.username } });
+            if (user !== null) { if (loginData.username !== user.username) { return null; } else { return await this.agriculturalHolding.findOne({ where: { username: loginData.username } }); } }
+        }
         catch (e) { return new RequestResponse(1050, "Agricultural holding search is currently not possible"); }
     }
 
