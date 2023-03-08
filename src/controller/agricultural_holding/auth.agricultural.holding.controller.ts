@@ -10,7 +10,7 @@ import { JwtDataAgriculturalHoldingDto } from "src/dto/agricultural_holding/jwt.
 import { jwtSecret } from "src/config/jwt.cofiguration";
 import { LoginInfoAgriculturalHoldingDto } from "src/dto/agricultural_holding/login.info.agricultural.holding.dto";
 import { validateObjectPropertyType } from "src/functions/validate.dto.objects";
-import { CheckAgriculturalHoldingStatusDto, checkAgriculturalHoldingStatusDtoTemplate } from "src/dto/agricultural_holding/check.agricultural.holding.status.dto";
+import { CheckAgriculturalHoldingStatusDto } from "src/dto/agricultural_holding/check.agricultural.holding.status.dto";
 
 // Method for authentification on login
 @Controller('agricultural-holding/auth')
@@ -66,20 +66,17 @@ export class AuthAgriculturalHoldingController {
 
     @Post("status")
     async checkStatus(@Body() data: CheckAgriculturalHoldingStatusDto): Promise<boolean> {
-        // Validate data transfer object
-        if (validateObjectPropertyType(data, checkAgriculturalHoldingStatusDtoTemplate)) { return false }
-
         try {
             // Getting agricultural holding id from token
             const agriculturalHoldingId = jwt.verify(data.token, jwtSecret).agriculturalHoldingId;
-           
+
             // Search agricultural holding by id
             const agriculturalHolding = await this.agriculturalHoldingService.getById(agriculturalHoldingId);
 
             if (agriculturalHolding === null || agriculturalHolding instanceof RequestResponse) { return false }
             else {
-                if (agriculturalHolding.agriculturalHoldingName !== data.agriculturalHoldingName) { return false }
-                else {return true;}
+                if ((agriculturalHolding.agriculturalHoldingId !== data.agriculturalHoldingId) || (agriculturalHolding.agriculturalHoldingName !== data.agriculturalHoldingName)) { return false }
+                else { return true; }
             }
         } catch (error) {
             return false;

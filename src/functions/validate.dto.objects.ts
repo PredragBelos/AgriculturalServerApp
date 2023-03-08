@@ -9,8 +9,13 @@ export const validateObjectPropertyType = (object, objectTemplate) => {
                 if (typeof object[property] !== objectTemplate[templateProperty].type) {
                     validationChecker = true;
                 }
-                if (object[property].length > objectTemplate[templateProperty].length) {
-                    validationChecker = true;
+                if (typeof object[property] === 'string') {
+                    if (object[property].length > objectTemplate[templateProperty].length) {
+                        validationChecker = true;
+                    }
+                }
+                else {
+                    validationChecker = true; 
                 }
             }
         }

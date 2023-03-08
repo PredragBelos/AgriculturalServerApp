@@ -46,6 +46,7 @@ export class AppModule implements NestModule {
     .exclude('agricultural-holding/auth/login')
     .forRoutes(
       {path: 'holding', method: RequestMethod.ALL},
+      {path: 'holding/*', method: RequestMethod.ALL},
     )
   }
 }
