@@ -11,7 +11,6 @@ import { GetAgriculturalHoldingDto } from 'src/dto/agricultural_holding/get.agri
 import { validateObjectPropertyType } from 'src/functions/validate.dto.objects';
 import { jwtSecret } from 'src/config/jwt.cofiguration';
 import * as jwt from 'jsonwebtoken';
-import { retry } from 'rxjs';
 
 @Injectable()
 export class AgriculturalHoldingService {
@@ -160,6 +159,16 @@ export class AgriculturalHoldingService {
         result.zipNumber = agriculturalHolding.zipNumber;
 
         return result;
+    }
+
+    // Method for deleting agricultural holding
+    async delete(agriculturalHoldingId: number): Promise<RequestResponse> {
+        try {
+            await this.agriculturalHolding.delete(agriculturalHoldingId);
+            return new RequestResponse(2011, "Agricultural holding was deleted ");
+        } catch (error) {
+            return new RequestResponse(2012, "Agricultural holding was not deleted ");
+        }
     }
 
     // Method for search agricultural holding by username

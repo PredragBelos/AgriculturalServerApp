@@ -31,4 +31,9 @@ export class AgriculturalHoldingController {
         return await this.agriculturalHoldingService.edit(agriculturalHoldingId, data);
     }
 
+    @Delete(":id")
+    async delete(@Param('id', ParseIntPipe) agriculturalHoldingId: number): Promise<RequestResponse> {
+        return await this.agriculturalHoldingService.delete(agriculturalHoldingId);
+    }
+
 }
