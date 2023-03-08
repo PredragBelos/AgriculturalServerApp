@@ -9,6 +9,9 @@ import { LoginAgriculturalHoldingDto } from 'src/dto/agricultural_holding/login.
 import { EditAgriculturalHoldingDto, editAgriculturalHoldingDtoTemplate } from 'src/dto/agricultural_holding/edit.agricultural.holding.dto';
 import { GetAgriculturalHoldingDto } from 'src/dto/agricultural_holding/get.agricultural.holding.dto';
 import { validateObjectPropertyType } from 'src/functions/validate.dto.objects';
+import { jwtSecret } from 'src/config/jwt.cofiguration';
+import * as jwt from 'jsonwebtoken';
+import { retry } from 'rxjs';
 
 @Injectable()
 export class AgriculturalHoldingService {
@@ -127,6 +130,37 @@ export class AgriculturalHoldingService {
         }
     }
 
+    // Method for get agricultural holding datas
+    async getAgriculturalHolding(agriculturalHoldingId: number, req: Request): Promise<GetAgriculturalHoldingDto | RequestResponse> {
+        // Getting agricultural holding from token authorization
+        try { var agriculturalHoldingIdFromToken = jwt.verify(req.headers["authorization"], jwtSecret).agriculturalHoldingId; }
+        catch (error) { return new RequestResponse(2000, "Agricultural holding id can not get from token") }
+
+        // Checking match id from token and URL param
+        if (agriculturalHoldingIdFromToken !== agriculturalHoldingId) { return new RequestResponse(2001, "Id from token and id from URL not match") }
+
+        // Search agricultural holding to database
+        try { var agriculturalHolding = await this.agriculturalHolding.findOne({ where: { agriculturalHoldingId: agriculturalHoldingId } }) }
+        catch (error) { return new RequestResponse(2002, "Agricultural holding not exist"); }
+
+        // Response if agricultural holding not exist
+        if (agriculturalHolding === null || agriculturalHolding === undefined) { return new RequestResponse(2003, "Agricultural holding not exist") }
+
+        let result = new GetAgriculturalHoldingDto();
+        result.address = agriculturalHolding.address;
+        result.agriculturalHoldingId = agriculturalHolding.agriculturalHoldingId;
+        result.agriculturalHoldingName = agriculturalHolding.agriculturalHoldingName;
+        result.agriculturalHoldingNumber = agriculturalHolding.agriculturalHoldingNumber;
+        result.city = agriculturalHolding.city;
+        result.directorIdNum = agriculturalHolding.directorIdNum;
+        result.directorName = agriculturalHolding.directorName;
+        result.directorSurname = agriculturalHolding.directorSurname;
+        result.email = agriculturalHolding.email;
+        result.phone = agriculturalHolding.phone;
+        result.zipNumber = agriculturalHolding.zipNumber;
+
+        return result;
+    }
 
     // Method for search agricultural holding by username
     async getByUsername(loginData: LoginAgriculturalHoldingDto): Promise<AgriculturalHolding | null | RequestResponse> {
