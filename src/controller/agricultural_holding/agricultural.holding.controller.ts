@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Req } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Req } from "@nestjs/common";
 import { jwtSecret } from "src/config/jwt.cofiguration";
 import { AddAgriculturalHoldingDto, addAgriculturalHoldingDtoTemplate } from "src/dto/agricultural_holding/add.agricultural.holding.dto";
 import { AgriculturalHolding } from "src/entity/agricultural.holding.entity";
@@ -7,6 +7,7 @@ import { RequestResponse } from "src/objects/response/request.response";
 import { AgriculturalHoldingService } from "src/service/agricultural_holding/agricultural.holding.service";
 import { GetAgriculturalHoldingDto } from "../../dto/agricultural_holding/get.agricultural.holding.dto";
 import * as jwt from 'jsonwebtoken';
+import { EditAgriculturalHoldingDto } from "src/dto/agricultural_holding/edit.agricultural.holding.dto";
 
 @Controller("holding")
 export class AgriculturalHoldingController {
@@ -61,4 +62,10 @@ export class AgriculturalHoldingController {
             return new RequestResponse(1092, "Agricultural holding not exist");
         }
     }
+
+    @Put(":id")
+    async edit(@Param('id', ParseIntPipe) agriculturalHoldingId: number, @Body() data: EditAgriculturalHoldingDto): Promise<RequestResponse | GetAgriculturalHoldingDto> {
+        return await this.agriculturalHoldingService.edit(agriculturalHoldingId, data);
+    }
+
 }

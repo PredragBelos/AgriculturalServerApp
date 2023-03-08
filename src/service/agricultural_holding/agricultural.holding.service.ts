@@ -6,6 +6,9 @@ import { RequestResponse } from 'src/objects/response/request.response';
 import { AddAgriculturalHoldingDto } from 'src/dto/agricultural_holding/add.agricultural.holding.dto';
 import { checkAgriculturalHoldingProperyLength } from 'src/functions/agricultural.holding.functions';
 import { LoginAgriculturalHoldingDto } from 'src/dto/agricultural_holding/login.agricultural.holding.dto';
+import { EditAgriculturalHoldingDto, editAgriculturalHoldingDtoTemplate } from 'src/dto/agricultural_holding/edit.agricultural.holding.dto';
+import { GetAgriculturalHoldingDto } from 'src/dto/agricultural_holding/get.agricultural.holding.dto';
+import { validateObjectPropertyType } from 'src/functions/validate.dto.objects';
 
 @Injectable()
 export class AgriculturalHoldingService {
@@ -67,6 +70,63 @@ export class AgriculturalHoldingService {
             }
         }
     }
+
+    // Method for edditing agricultural holding
+    async edit(agriculturalHoldingId: number, data: EditAgriculturalHoldingDto): Promise<RequestResponse | GetAgriculturalHoldingDto> {
+        const agriculturalHoldingIdFromBody = data.agriculturalHoldingId;
+
+        // Validate data transfer object
+        try { if (validateObjectPropertyType(data, editAgriculturalHoldingDtoTemplate)) { return new RequestResponse(5000, "Data transfer object is not correct") }; }
+        catch (error) { return new RequestResponse(5000, "Data transfer object is not correct"); }
+
+        // Data matching check for agricultural holding ids
+        if (agriculturalHoldingId !== agriculturalHoldingIdFromBody) { return new RequestResponse(1090, "Id from body and URL not match") };
+
+        // Find agricultural holding to database
+        const agriculturalHoldingFromDatabase = await this.agriculturalHolding.findOne({ where: { agriculturalHoldingId: agriculturalHoldingId } });
+
+        // Checking agricultural holding exist in database
+        if (agriculturalHoldingFromDatabase === null || agriculturalHoldingFromDatabase === undefined) { return new RequestResponse(1091, "Agricultural holding not exist") }
+
+        // Fill object for sent to database
+        let agriculturalHoldingDataForSentToDatabase = {
+            agriculturalHoldingId: agriculturalHoldingId,
+            username: agriculturalHoldingFromDatabase.username,
+            password: agriculturalHoldingFromDatabase.passwordHash,
+            agriculturalHoldingName: data.agriculturalHoldingName,
+            agriculturalHoldingNumber: data.agriculturalHoldingNumber,
+            address: data.address,
+            city: data.city,
+            zipNumber: data.zipNumber,
+            directorName: data.directorName,
+            directorSurname: data.directorSurname,
+            directorIdNum: data.directorIdNum,
+            phone: data.phone,
+            email: data.email,
+        }
+
+        // Save editing agricultural holding to database
+        try {
+            this.agriculturalHolding.save(agriculturalHoldingDataForSentToDatabase);
+            let response = new GetAgriculturalHoldingDto();
+            response.address = agriculturalHoldingDataForSentToDatabase.address;
+            response.agriculturalHoldingId = agriculturalHoldingDataForSentToDatabase.agriculturalHoldingId;
+            response.agriculturalHoldingName = agriculturalHoldingDataForSentToDatabase.agriculturalHoldingName;
+            response.agriculturalHoldingNumber = agriculturalHoldingDataForSentToDatabase.agriculturalHoldingNumber;
+            response.city = agriculturalHoldingDataForSentToDatabase.city;
+            response.directorIdNum = agriculturalHoldingDataForSentToDatabase.directorIdNum;
+            response.directorName = agriculturalHoldingDataForSentToDatabase.directorName;
+            response.directorSurname = agriculturalHoldingDataForSentToDatabase.directorSurname;
+            response.email = agriculturalHoldingDataForSentToDatabase.email;
+            response.phone = agriculturalHoldingDataForSentToDatabase.phone;
+            response.zipNumber = agriculturalHoldingDataForSentToDatabase.zipNumber;
+
+            return response;
+        } catch (error) {
+            return new RequestResponse(1092, "Agricultural holding data is not saved");
+        }
+    }
+
 
     // Method for search agricultural holding by username
     async getByUsername(loginData: LoginAgriculturalHoldingDto): Promise<AgriculturalHolding | null | RequestResponse> {
