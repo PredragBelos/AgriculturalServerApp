@@ -14,9 +14,9 @@ export const validateObjectPropertyType = (object, objectTemplate) => {
                         validationChecker = true;
                     }
                 }
-                if (typeof object[property] === 'number') {
-                    validationChecker = false;
-                }
+                // if (typeof object[property] === 'number') {
+                //     validationChecker = false;
+                // }
             }
         }
     }
