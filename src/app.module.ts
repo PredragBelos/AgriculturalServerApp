@@ -81,6 +81,8 @@ export class AppModule implements NestModule {
         { path: 'parcels/*', method: RequestMethod.ALL },
         { path: 'parcel-owners', method: RequestMethod.ALL },
         { path: 'parcel-owners/*', method: RequestMethod.ALL },
+        { path: 'parcel-coordinate', method: RequestMethod.ALL },
+        { path: 'parcel-coordinate/*', method: RequestMethod.ALL },
       )
   }
 }

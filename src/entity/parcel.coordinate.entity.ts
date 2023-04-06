@@ -13,9 +13,9 @@ export class ParcelCoordinate {
   @Column("int", { name: "parcel_id", unsigned: true })
   parcelId: number;
 
-  @Column("float", { name: "x_coordinate", precision: 12, default: () => "'0'", })
+  @Column("decimal", { name: "x_coordinate", precision: 12, default: () => "'0'", })
   xCoordinate: number;
 
-  @Column("float", { name: "y_coordinate", precision: 12, default: () => "'0'", })
+  @Column("decimal", { name: "y_coordinate", precision: 12, default: () => "'0'", })
   yCoordinate: number;
 }
