@@ -8,6 +8,7 @@ import * as jwt from 'jsonwebtoken';
 import { jwtSecret } from "src/config/jwt.cofiguration";
 import { validateObjectPropertyType } from "src/functions/validate.dto.objects";
 import { EditParcelOwnerDto, editParcelOwnerDtoTemplate } from "src/dto/parcel_owner/edit.parcel.owner.dto";
+import { GetParcelOwnerDto } from "src/dto/parcel_owner/get.parcel.owner.dto";
 
 @Injectable()
 export class ParcelOwnersService {
@@ -114,5 +115,38 @@ export class ParcelOwnersService {
         } catch (error) {
             return new RequestResponse(200, "Parcel owner was not deleted");
         }
+    }
+
+    async getParcelOwnersByAgriculturalHolding(req: Request): Promise<RequestResponse | GetParcelOwnerDto[]> {
+        let agriculturalHoldingId: number;
+        let parcelOwnersArr: GetParcelOwnerDto[] = [];
+
+        // Getting agricultural holding id from token authorization
+        try { agriculturalHoldingId = jwt.verify(req.headers["authorization"], jwtSecret).agriculturalHoldingId; }
+        catch (error) { return new RequestResponse(2041, "Agricultural holding id can not get from token") }
+
+        // Search parcel owners drom database per agricultural holding id and create array
+        try {
+            const parcelsOwnersFromDatabase = await this.parcelOwners.find({ where: { agriculturalHoldingId: agriculturalHoldingId } });
+            parcelsOwnersFromDatabase.forEach(parcelOwner => {
+                let curentParcelOwner = new GetParcelOwnerDto();
+                curentParcelOwner.address = parcelOwner.address;
+                curentParcelOwner.city = parcelOwner.city;
+                curentParcelOwner.email = parcelOwner.email;
+                curentParcelOwner.identificationNumber = parcelOwner.identificationNumber;
+                curentParcelOwner.note = parcelOwner.note;
+                curentParcelOwner.ownerName = parcelOwner.ownerName;
+                curentParcelOwner.ownerSurname = parcelOwner.ownerSurname;
+                curentParcelOwner.parcelOwnerId = parcelOwner.parcelOwnersId;
+                curentParcelOwner.phone = parcelOwner.phone;
+                curentParcelOwner.zipNumber = parcelOwner.zipNumber;
+
+                parcelOwnersArr.push(curentParcelOwner);
+            })
+        } catch (error) {
+            return new RequestResponse(2042, "Parcels owners for this id can not be found");
+        }
+
+        if (parcelOwnersArr) { return parcelOwnersArr } else { return new RequestResponse(2043, 'Parcel owners arr can not be created') }
     }
 }
