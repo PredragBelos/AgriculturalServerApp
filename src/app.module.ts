@@ -19,6 +19,7 @@ import { ParcelCoordinateService } from './service/parcel.coordinate/parcel.coor
 import { ParcelOwnersService } from './service/parcel.owner/parcel.owner.service';
 import { ParcelParcelOwnerService } from './service/parcel.parcel.owner/parcel.parcel.owner.service';
 import { ParcelService } from './service/parcel/parcel.service';
+import { ParcelParcelOwnersController } from './controller/parcel.parcel.owner/parcel.parcel.owner.controller';
 
 @Module({
   imports: [
@@ -53,6 +54,7 @@ import { ParcelService } from './service/parcel/parcel.service';
     ParcelController,
     ParcelOwnersController,
     ParcelCoordinateController,
+    ParcelParcelOwnersController,
   ],
   providers: [
     AgriculturalHoldingService,
@@ -83,6 +85,8 @@ export class AppModule implements NestModule {
         { path: 'parcel-owners/*', method: RequestMethod.ALL },
         { path: 'parcel-coordinate', method: RequestMethod.ALL },
         { path: 'parcel-coordinate/*', method: RequestMethod.ALL },
+        { path: 'parcel-parcel-owners', method: RequestMethod.ALL },
+        { path: 'parcel-parcel-owners/*', method: RequestMethod.ALL },
       )
   }
 }
