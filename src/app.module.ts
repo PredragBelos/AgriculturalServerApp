@@ -20,6 +20,15 @@ import { ParcelOwnersService } from './service/parcel.owner/parcel.owner.service
 import { ParcelParcelOwnerService } from './service/parcel.parcel.owner/parcel.parcel.owner.service';
 import { ParcelService } from './service/parcel/parcel.service';
 import { ParcelParcelOwnersController } from './controller/parcel.parcel.owner/parcel.parcel.owner.controller';
+import { AttachedMachines } from './entity/attached.machines.entity';
+import { AttachedVehicles } from './entity/attached.vehicles.entity';
+import { Vehicles } from './entity/vehicles.entity';
+import { VehiclesController } from './controller/vehicles/vehicles.controller';
+import { AttachedVehiclesController } from './controller/attached.vehicles/attached.vehicles.controller';
+import { AttachedMachinesController } from './controller/attached.machines/attached.machines.controller';
+import { VehiclesService } from './service/vehicles/vehicles.service';
+import { AttachedVehiclesService } from './service/attached.vehicles/attached.vehicles.service';
+import { AttachedMachinesService } from './service/attached.machines/attached.machines.service';
 
 @Module({
   imports: [
@@ -36,6 +45,9 @@ import { ParcelParcelOwnersController } from './controller/parcel.parcel.owner/p
         ParcelOwner,
         ParcelCoordinate,
         ParcelParcelOwner,
+        Vehicles,
+        AttachedVehicles,
+        AttachedMachines,
       ],
     }),
     TypeOrmModule.forFeature(
@@ -45,6 +57,9 @@ import { ParcelParcelOwnersController } from './controller/parcel.parcel.owner/p
         ParcelOwner,
         ParcelCoordinate,
         ParcelParcelOwner,
+        Vehicles,
+        AttachedVehicles,
+        AttachedMachines,
       ]
     )
   ],
@@ -55,6 +70,9 @@ import { ParcelParcelOwnersController } from './controller/parcel.parcel.owner/p
     ParcelOwnersController,
     ParcelCoordinateController,
     ParcelParcelOwnersController,
+    VehiclesController,
+    AttachedVehiclesController,
+    AttachedMachinesController,
   ],
   providers: [
     AgriculturalHoldingService,
@@ -62,6 +80,9 @@ import { ParcelParcelOwnersController } from './controller/parcel.parcel.owner/p
     ParcelOwnersService,
     ParcelCoordinateService,
     ParcelParcelOwnerService,
+    VehiclesService,
+    AttachedVehiclesService,
+    AttachedMachinesService,
   ],
   exports: [
     AgriculturalHoldingService,
@@ -69,6 +90,9 @@ import { ParcelParcelOwnersController } from './controller/parcel.parcel.owner/p
     ParcelOwnersService,
     ParcelCoordinateService,
     ParcelParcelOwnerService,
+    VehiclesService,
+    AttachedVehiclesService,
+    AttachedMachinesService,
   ]
 })
 export class AppModule implements NestModule {
@@ -87,6 +111,12 @@ export class AppModule implements NestModule {
         { path: 'parcel-coordinate/*', method: RequestMethod.ALL },
         { path: 'parcel-parcel-owners', method: RequestMethod.ALL },
         { path: 'parcel-parcel-owners/*', method: RequestMethod.ALL },
+        { path: 'vehicles', method: RequestMethod.ALL },
+        { path: 'vehicles/*', method: RequestMethod.ALL },
+        { path: 'attached-vehicles', method: RequestMethod.ALL },
+        { path: 'attached-vehicles/*', method: RequestMethod.ALL },
+        { path: 'attached-machines', method: RequestMethod.ALL },
+        { path: 'attached-machines/*', method: RequestMethod.ALL },
       )
   }
 }
