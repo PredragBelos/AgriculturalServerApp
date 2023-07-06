@@ -135,21 +135,21 @@ export class VehiclesService {
         try {
             let curentVehicle = new Vehicles();
 
-            curentVehicle.agriculturalHoldingId = curentVehicle.agriculturalHoldingId;
-            curentVehicle.garageNumber = curentVehicle.garageNumber;
+            curentVehicle.agriculturalHoldingId = vehicleFromDatabase.agriculturalHoldingId;
+            curentVehicle.garageNumber = vehicleFromDatabase.garageNumber;
             curentVehicle.mark = data.mark;
             curentVehicle.model = data.model;
             curentVehicle.registrationNumber = data.registrationNumber;
             curentVehicle.status = transformBooleanNumberTo(data.status);
             curentVehicle.type = data.type;
-            curentVehicle.vehiclesId = data.vehicleId;
+            curentVehicle.vehiclesId = vehicleFromDatabase.vehiclesId;
             curentVehicle.vinNumber = data.vinNumber;
 
             this.vehicles.save(curentVehicle);
             return new RequestResponse(200, 'Vehicle data has changed');
 
         } catch (error) {
-            return new RequestResponse(2603, "Vehicle can not be created");
+            return new RequestResponse(2603, "Vehicle can not be edited");
         }
     }
 
