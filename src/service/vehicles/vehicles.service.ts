@@ -100,13 +100,18 @@ export class VehiclesService {
     }
 
     // Service for editing one vehicle by id
-    async editVehicleById(data: EditVehiclesDto, req: Request): Promise<RequestResponse> {
+    async editVehicleById(data: EditVehiclesDto, req: Request): Promise<RequestResponse | GetVehiclesDto> {
         let agriculturalHoldingId: number;
         let vehicleFromDatabase: Vehicles;
 
         // Function for transform number to boolean
         const transformBooleanNumberTo = (boolean: boolean): number => {
             if (boolean) { return 1 } else { return 0 };
+        }
+
+        // Function for transform number to boolean
+        const transformNumberToBoolean = (number: number): boolean => {
+            if (number === 1) { return true } else { return false };
         }
 
         // Validate data transfer object
@@ -145,21 +150,39 @@ export class VehiclesService {
             curentVehicle.vehiclesId = vehicleFromDatabase.vehiclesId;
             curentVehicle.vinNumber = data.vinNumber;
 
+            // Save vehicle to database
             this.vehicles.save(curentVehicle);
-            return new RequestResponse(200, 'Vehicle data has changed');
 
+            // Create getVehiclesDto for returning
+            let vehicleForReturn = new GetVehiclesDto();
+            vehicleForReturn.agriculturalHoldingId = curentVehicle.agriculturalHoldingId;
+            vehicleForReturn.garageNumber = curentVehicle.garageNumber;
+            vehicleForReturn.mark = curentVehicle.mark;
+            vehicleForReturn.model = curentVehicle.model;
+            vehicleForReturn.registrationNumber = curentVehicle.registrationNumber;
+            vehicleForReturn.status = transformNumberToBoolean(curentVehicle.status);
+            vehicleForReturn.type = curentVehicle.type;
+            vehicleForReturn.vehicleId = curentVehicle.vehiclesId;
+            vehicleForReturn.vinNumber = curentVehicle.vinNumber;
+
+            return vehicleForReturn;
         } catch (error) {
             return new RequestResponse(2603, "Vehicle can not be edited");
         }
     }
 
-    async addNewVehicle(data: AddVehiclesDto, req: Request): Promise<RequestResponse> {
+    async addNewVehicle(data: AddVehiclesDto, req: Request): Promise<RequestResponse | GetVehiclesDto[]> {
         let agriculturalHoldingId: number;
         let newVehicle: Vehicles;
 
         // Function for transform number to boolean
         const transformBooleanNumberTo = (boolean: boolean): number => {
             if (boolean) { return 1 } else { return 0 };
+        }
+
+        // Function for transform number to boolean
+        const transformNumberToBoolean = (number: number): boolean => {
+            if (number === 1) { return true } else { return false };
         }
 
         // Validate data transfer object
@@ -202,7 +225,31 @@ export class VehiclesService {
             newVehicle.vinNumber = data.vinNumber;
 
             await this.vehicles.save(newVehicle);
-            return new RequestResponse(200, "Vehicle was added")
+
+            // Get all vehicles from database
+            let vehicles: Vehicles[] = await this.vehicles.find({ where: { agriculturalHoldingId: agriculturalHoldingId } })
+
+            // Cretate vehicles response array
+            let vehicles_for_return: GetVehiclesDto[] = [];
+
+            // Fill vehicle for return array
+            vehicles.forEach(vehicle => {
+                let newVehicle = new GetVehiclesDto();
+                newVehicle.agriculturalHoldingId = vehicle.agriculturalHoldingId;
+                newVehicle.garageNumber = vehicle.garageNumber;
+                newVehicle.mark = vehicle.mark;
+                newVehicle.model = vehicle.model;
+                newVehicle.registrationNumber = vehicle.registrationNumber;
+                newVehicle.status = transformNumberToBoolean(vehicle.status);
+                newVehicle.type = vehicle.type;
+                newVehicle.vehicleId = vehicle.vehiclesId;
+                newVehicle.vinNumber = vehicle.vinNumber;
+
+                // Add new vehicle to vehicle array
+                vehicles_for_return.push(newVehicle);
+            })
+
+            return vehicles_for_return;
         } catch (error) {
             return new RequestResponse(2705, "Vehicle was not added");
         }

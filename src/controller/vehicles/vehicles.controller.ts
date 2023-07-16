@@ -2,6 +2,7 @@ import { Body, Controller, Get, Param, ParseIntPipe, Post, Req, Put, Delete } fr
 import { AddVehiclesDto } from "src/dto/vehicles/add.vehicles.dto";
 import { EditVehiclesDto } from "src/dto/vehicles/edit.vehicles.dto";
 import { GetVehiclesDto } from "src/dto/vehicles/get.vehicles.dto";
+import { Vehicles } from "src/entity/vehicles.entity";
 import { RequestResponse } from "src/objects/response/request.response";
 import { VehiclesService } from "src/service/vehicles/vehicles.service";
 
@@ -23,12 +24,12 @@ export class VehiclesController {
     }
 
     @Put()
-    async editVehicleById(@Body() data: EditVehiclesDto, @Req() req: Request): Promise<RequestResponse> {
+    async editVehicleById(@Body() data: EditVehiclesDto, @Req() req: Request): Promise<RequestResponse | GetVehiclesDto> {
         return this.vehiclesService.editVehicleById(data, req);
     }
 
     @Post()
-    async addNewVehicle(@Body() data: AddVehiclesDto, @Req() req: Request): Promise<RequestResponse> {
+    async addNewVehicle(@Body() data: AddVehiclesDto, @Req() req: Request): Promise<RequestResponse | GetVehiclesDto[]> {
         return await this.vehiclesService.addNewVehicle(data, req);
     }
 
