@@ -23,12 +23,12 @@ export class AttachedVehiclesController {
     }
 
     @Put()
-    async editAttachedVehicleById(@Body() data: EditAttachedVehiclesDto, @Req() req: Request): Promise<RequestResponse> {
+    async editAttachedVehicleById(@Body() data: EditAttachedVehiclesDto, @Req() req: Request): Promise<RequestResponse | GetAttachedVehiclesDto> {
         return this.attachedVehiclesService.editAttachedVehicleById(data, req);
     }
 
     @Post()
-    async addNewAttachedVehicle(@Body() data: AddAttachedVehiclesDto, @Req() req: Request): Promise<RequestResponse> {
+    async addNewAttachedVehicle(@Body() data: AddAttachedVehiclesDto, @Req() req: Request): Promise<RequestResponse | GetAttachedVehiclesDto[]> {
         return await this.attachedVehiclesService.addNewAttachedVehicle(data, req);
     }
 

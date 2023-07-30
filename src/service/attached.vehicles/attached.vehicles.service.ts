@@ -10,6 +10,7 @@ import { getAgriculturalHoldingId } from "src/functions/global.functions";
 import { EditAttachedVehiclesDto, editAttachedVehiclesDtoTemplate } from "src/dto/attached_vehicles/edit.attached.vehicles.dto";
 import { validateObjectPropertyType } from "src/functions/validate.dto.objects";
 import { AddAttachedVehiclesDto, addAttachedVehiclesDtoTemplate } from "src/dto/attached_vehicles/add.attached.vehicles.dto";
+import { Vehicles } from "src/entity/vehicles.entity";
 
 @Injectable()
 export class AttachedVehiclesService {
@@ -103,13 +104,18 @@ export class AttachedVehiclesService {
     }
 
     // Service for editing one attached vehicle by id
-    async editAttachedVehicleById(data: EditAttachedVehiclesDto, req: Request): Promise<RequestResponse> {
+    async editAttachedVehicleById(data: EditAttachedVehiclesDto, req: Request): Promise<RequestResponse | GetAttachedVehiclesDto> {
         let agriculturalHoldingId: number;
         let attachedVehicleFromDatabase: AttachedVehicles;
 
         // Function for transform number to boolean
         const transformBooleanNumberTo = (boolean: boolean): number => {
             if (boolean) { return 1 } else { return 0 };
+        }
+
+        // Function for transform number to boolean
+        const transformNumberToBoolean = (number: number): boolean => {
+            if (number === 1) { return true } else { return false };
         }
 
         // Validate data transfer object
@@ -149,15 +155,27 @@ export class AttachedVehiclesService {
             curentVehicle.vinNumber = data.vinNumber;
 
             this.attachedVehicles.save(curentVehicle);
-            return new RequestResponse(200, 'Attached vehicle data has changed');
 
+            // Create getAttachedVehicleDto for returning
+            let attachedVehicleForReturning = new GetAttachedVehiclesDto();
+            attachedVehicleForReturning.agriculturalHoldingId = curentVehicle.agriculturalHoldingId;
+            attachedVehicleForReturning.attachedVehiclesId = curentVehicle.attachedVehiclesId;
+            attachedVehicleForReturning.garageNumber = curentVehicle.garageNumber;
+            attachedVehicleForReturning.mark = curentVehicle.mark;
+            attachedVehicleForReturning.model = curentVehicle.model;
+            attachedVehicleForReturning.registrationNumber = curentVehicle.registrationNumber;
+            attachedVehicleForReturning.status = transformNumberToBoolean(curentVehicle.status);
+            attachedVehicleForReturning.type = curentVehicle.type;
+            attachedVehicleForReturning.vinNumber = curentVehicle.vinNumber;
+
+            return attachedVehicleForReturning;
         } catch (error) {
             return new RequestResponse(3103, "Attached vehicle can not be edited");
         }
     }
 
     // Service for adding new attached vehicle to database
-    async addNewAttachedVehicle(data: AddAttachedVehiclesDto, req: Request): Promise<RequestResponse> {
+    async addNewAttachedVehicle(data: AddAttachedVehiclesDto, req: Request): Promise<RequestResponse | GetAttachedVehiclesDto[]> {
         let agriculturalHoldingId: number;
         let newAttachedVehicle: AttachedVehicles;
         let newGarageNumber: number = -1;
@@ -165,6 +183,11 @@ export class AttachedVehiclesService {
         // Function for transform number to boolean
         const transformBooleanNumberTo = (boolean: boolean): number => {
             if (boolean) { return 1 } else { return 0 };
+        }
+
+        // Function for transform number to boolean
+        const transformNumberToBoolean = (number: number): boolean => {
+            if (number === 1) { return true } else { return false };
         }
 
         // Validate data transfer object
@@ -210,7 +233,31 @@ export class AttachedVehiclesService {
             newAttachedVehicle.vinNumber = data.vinNumber;
 
             await this.attachedVehicles.save(newAttachedVehicle);
-            return new RequestResponse(200, "Attached vehicle was added")
+
+            // Get all attached vehicles from database
+            let attachedVehicles: AttachedVehicles[] = await this.attachedVehicles.find({ where: { agriculturalHoldingId: agriculturalHoldingId } });
+
+            // Create attached vehicles response array
+            let attached_vehicles_for_return: GetAttachedVehiclesDto[] = [];
+
+            // Fill attached vehicle for return array
+            attachedVehicles.forEach(vehicle => {
+                let newAttachedVehicle = new GetAttachedVehiclesDto();
+                newAttachedVehicle.agriculturalHoldingId = vehicle.agriculturalHoldingId;
+                newAttachedVehicle.attachedVehiclesId = vehicle.attachedVehiclesId;
+                newAttachedVehicle.garageNumber = vehicle.garageNumber;
+                newAttachedVehicle.mark = vehicle.mark;
+                newAttachedVehicle.model = vehicle.model;
+                newAttachedVehicle.registrationNumber = vehicle.registrationNumber;
+                newAttachedVehicle.status = transformNumberToBoolean(vehicle.status);
+                newAttachedVehicle.type = vehicle.type;
+                newAttachedVehicle.vinNumber = vehicle.vinNumber;
+
+                // Add new attached vehicle to attached vehicle array
+                attached_vehicles_for_return.push(newAttachedVehicle);
+            })
+
+            return attached_vehicles_for_return;
         } catch (error) {
             return new RequestResponse(3204, "Attached vehicle was not added");
         }
