@@ -100,7 +100,7 @@ export class AttachedMachinesService {
     }
 
     // Service for adding new attached machine to database
-    async addNewAttachedMachine(data: AddAttachedMachinesDto, req: Request): Promise<RequestResponse> {
+    async addNewAttachedMachine(data: AddAttachedMachinesDto, req: Request): Promise<RequestResponse | GetAttachedMachinesDto[]> {
         let agriculturalHoldingId: number;
         let newAttachedMachine: AttachedMachines;
         let newGarageNumber: number = -1;
@@ -108,6 +108,11 @@ export class AttachedMachinesService {
         // Function for transform number to boolean
         const transformBooleanNumberTo = (boolean: boolean): number => {
             if (boolean) { return 1 } else { return 0 };
+        }
+
+        // Function for transform number to boolean
+        const transformNumberToBoolean = (number: number): boolean => {
+            if (number === 1) { return true } else { return false };
         }
 
         // Validate data transfer object
@@ -151,20 +156,47 @@ export class AttachedMachinesService {
             newAttachedMachine.type = data.type;
 
             await this.attachedMachines.save(newAttachedMachine);
-            return new RequestResponse(200, "Attached machine was added")
+            // return new RequestResponse(200, "Attached machine was added")
+
+            // Get all attached machines for database
+            let attachedMachines: AttachedMachines[] = await this.attachedMachines.find({ where: { agriculturalHoldinId: agriculturalHoldingId } });
+
+            // Create attached machines response array
+            let attached_machines_for_return: GetAttachedMachinesDto[] = [];
+
+            // Fill attached machines for return array
+            attachedMachines.forEach(machine => {
+                let newAttachedMachine = new GetAttachedMachinesDto();
+                newAttachedMachine.agriculturalHoldingId = machine.agriculturalHoldinId;
+                newAttachedMachine.attachedMachinesId = machine.attachedMachinesId;
+                newAttachedMachine.garageNumber = machine.garageNumber;
+                newAttachedMachine.mark = machine.mark;
+                newAttachedMachine.model = machine.model;
+                newAttachedMachine.status = transformNumberToBoolean(machine.status);
+                newAttachedMachine.type = machine.type;
+
+                // Add new attached machine to attached machine array
+                attached_machines_for_return.push(newAttachedMachine);
+            })
+            return attached_machines_for_return;
         } catch (error) {
             return new RequestResponse(3604, "Attached machine was not added");
         }
     }
 
     // Service for editing one attached machine by id
-    async editAttachedMachineById(data: EditAttachedMachinesDto, req: Request): Promise<RequestResponse> {
+    async editAttachedMachineById(data: EditAttachedMachinesDto, req: Request): Promise<RequestResponse | GetAttachedMachinesDto> {
         let agriculturalHoldingId: number;
         let attachedMachineFromDatabase: AttachedMachines;
 
         // Function for transform number to boolean
         const transformBooleanNumberTo = (boolean: boolean): number => {
             if (boolean) { return 1 } else { return 0 };
+        }
+
+        // Function for transform number to boolean
+        const transformNumberToBoolean = (number: number): boolean => {
+            if (number === 1) { return true } else { return false };
         }
 
         // Validate data transfer object
@@ -201,9 +233,20 @@ export class AttachedMachinesService {
             curentMachine.status = transformBooleanNumberTo(data.status);
             curentMachine.type = data.type;
 
+            // Save edited vehicle to database
             this.attachedMachines.save(curentMachine);
-            return new RequestResponse(200, 'Attached machine data has changed');
 
+            // Create getAttachedMachinesDto for returning
+            let attachedMachineForReturning = new GetAttachedMachinesDto();
+            attachedMachineForReturning.agriculturalHoldingId = curentMachine.agriculturalHoldinId;
+            attachedMachineForReturning.attachedMachinesId = curentMachine.attachedMachinesId;
+            attachedMachineForReturning.garageNumber = curentMachine.garageNumber;
+            attachedMachineForReturning.mark = curentMachine.mark;
+            attachedMachineForReturning.model = curentMachine.model;
+            attachedMachineForReturning.status = transformNumberToBoolean(curentMachine.status);
+            attachedMachineForReturning.type = curentMachine.type;
+
+            return attachedMachineForReturning;
         } catch (error) {
             return new RequestResponse(3703, "Attached machine can not be edited");
         }

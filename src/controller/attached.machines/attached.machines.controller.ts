@@ -23,12 +23,12 @@ export class AttachedMachinesController {
     }
 
     @Put()
-    async editAttachedMachineById(@Body() data: EditAttachedMachinesDto, @Req() req: Request): Promise<RequestResponse> {
+    async editAttachedMachineById(@Body() data: EditAttachedMachinesDto, @Req() req: Request): Promise<RequestResponse | GetAttachedMachinesDto> {
         return this.attachedMachinesService.editAttachedMachineById(data, req);
     }
 
     @Post()
-    async addNewAttachedMachine(@Body() data: AddAttachedMachinesDto, @Req() req: Request): Promise<RequestResponse> {
+    async addNewAttachedMachine(@Body() data: AddAttachedMachinesDto, @Req() req: Request): Promise<RequestResponse | GetAttachedMachinesDto[]> {
         return await this.attachedMachinesService.addNewAttachedMachine(data, req);
     }
 
