@@ -29,6 +29,9 @@ import { AttachedMachinesController } from './controller/attached.machines/attac
 import { VehiclesService } from './service/vehicles/vehicles.service';
 import { AttachedVehiclesService } from './service/attached.vehicles/attached.vehicles.service';
 import { AttachedMachinesService } from './service/attached.machines/attached.machines.service';
+import { Driver } from './entity/driver.entity';
+import { DriverController } from './controller/driver/driver.controller';
+import { DriverService } from './service/driver/driver.service';
 
 @Module({
   imports: [
@@ -48,6 +51,7 @@ import { AttachedMachinesService } from './service/attached.machines/attached.ma
         Vehicles,
         AttachedVehicles,
         AttachedMachines,
+        Driver,
       ],
     }),
     TypeOrmModule.forFeature(
@@ -60,6 +64,7 @@ import { AttachedMachinesService } from './service/attached.machines/attached.ma
         Vehicles,
         AttachedVehicles,
         AttachedMachines,
+        Driver,
       ]
     )
   ],
@@ -73,6 +78,7 @@ import { AttachedMachinesService } from './service/attached.machines/attached.ma
     VehiclesController,
     AttachedVehiclesController,
     AttachedMachinesController,
+    DriverController,
   ],
   providers: [
     AgriculturalHoldingService,
@@ -83,6 +89,7 @@ import { AttachedMachinesService } from './service/attached.machines/attached.ma
     VehiclesService,
     AttachedVehiclesService,
     AttachedMachinesService,
+    DriverService,
   ],
   exports: [
     AgriculturalHoldingService,
@@ -93,6 +100,7 @@ import { AttachedMachinesService } from './service/attached.machines/attached.ma
     VehiclesService,
     AttachedVehiclesService,
     AttachedMachinesService,
+    DriverService,
   ]
 })
 export class AppModule implements NestModule {
@@ -117,6 +125,8 @@ export class AppModule implements NestModule {
         { path: 'attached-vehicles/*', method: RequestMethod.ALL },
         { path: 'attached-machines', method: RequestMethod.ALL },
         { path: 'attached-machines/*', method: RequestMethod.ALL },
+        { path: 'driver', method: RequestMethod.ALL },
+        { path: 'driver/*', method: RequestMethod.ALL },
       )
   }
 }
