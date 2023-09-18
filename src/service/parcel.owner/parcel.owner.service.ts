@@ -17,7 +17,7 @@ export class ParcelOwnersService {
     ) { }
 
     // Service for adding parcel owner
-    async addOwner(data: AddParcelOwnerDto, req: Request): Promise<RequestResponse> {
+    async addOwner(data: AddParcelOwnerDto, req: Request): Promise<RequestResponse | GetParcelOwnerDto[]> {
         // Validate data transfer object
         if (validateObjectPropertyType(data, addParcelOwnerDtoTemplate)) { return new RequestResponse(5000, "Data transfer object is not correct") };
 
@@ -30,28 +30,54 @@ export class ParcelOwnersService {
             return new RequestResponse(2041, "Agricultural holding id is not equal in data and token")
         }
 
-        // Create object for new parcel owner
-        let newParcelOwner = new ParcelOwner();
-        newParcelOwner.address = data.address;
-        newParcelOwner.agriculturalHoldingId = data.agriculturalHoldingId;
-        newParcelOwner.city = data.city;
-        newParcelOwner.email = data.email;
-        newParcelOwner.identificationNumber = data.identificationNumber;
-        newParcelOwner.note = data.note;
-        newParcelOwner.ownerName = data.ownerName;
-        newParcelOwner.ownerSurname = data.ownerSurname;
-        newParcelOwner.phone = data.phone;
-        newParcelOwner.zipNumber = data.zipNumber;
-
         try {
+            // Create object for new parcel owner
+            let newParcelOwner = new ParcelOwner();
+            newParcelOwner.address = data.address;
+            newParcelOwner.agriculturalHoldingId = data.agriculturalHoldingId;
+            newParcelOwner.city = data.city;
+            newParcelOwner.email = data.email;
+            newParcelOwner.identificationNumber = data.identificationNumber;
+            newParcelOwner.note = data.note;
+            newParcelOwner.ownerName = data.ownerName;
+            newParcelOwner.ownerSurname = data.ownerSurname;
+            newParcelOwner.phone = data.phone;
+            newParcelOwner.zipNumber = data.zipNumber;
+
+            // Save new parcel owner to database
             await this.parcelOwners.save(newParcelOwner);
-            return new RequestResponse(200, "Parcel owner was saved");
+
+            // Get all owners from database
+            let owners: ParcelOwner[] = await this.parcelOwners.find({ where: { agriculturalHoldingId: data.agriculturalHoldingId } })
+
+            // Create owners response array
+            let owners_for_return: GetParcelOwnerDto[] = [];
+
+            // Fill owners for return array
+            owners.forEach(owner => {
+                let newOwner = new GetParcelOwnerDto();
+                newOwner.address = owner.address;
+                newOwner.city = owner.city;
+                newOwner.email = owner.email;
+                newOwner.identificationNumber = owner.identificationNumber;
+                newOwner.note = owner.note;
+                newOwner.ownerName = owner.ownerName;
+                newOwner.ownerSurname = owner.ownerSurname;
+                newOwner.parcelOwnerId = owner.parcelOwnersId;
+                newOwner.phone = owner.phone;
+                newOwner.zipNumber = owner.zipNumber;
+
+                // Add new owner to owners array
+                owners_for_return.push(newOwner);
+            })
+
+            return owners_for_return;
         } catch (error) {
             return new RequestResponse(2042, "Parcel owner was not saved");
         }
     }
 
-    async editOwner(ownerId: number, data: EditParcelOwnerDto, req: Request): Promise<RequestResponse> {
+    async editOwner(ownerId: number, data: EditParcelOwnerDto, req: Request): Promise<RequestResponse | GetParcelOwnerDto> {
         // Validate data transfer object
         if (validateObjectPropertyType(data, editParcelOwnerDtoTemplate)) { return new RequestResponse(5000, "Data transfer object is not correct") };
 
@@ -82,7 +108,21 @@ export class ParcelOwnersService {
                 curentOwner.zipNumber = data.zipNumber;
 
                 await this.parcelOwners.save(curentOwner);
-                return new RequestResponse(200, "Parcel owners data was changed");
+
+                // Create getParcelOwnerDto for returning
+                let ownerForReturn = new GetParcelOwnerDto();
+                ownerForReturn.address = curentOwner.address;
+                ownerForReturn.city = curentOwner.city;
+                ownerForReturn.email = curentOwner.email;
+                ownerForReturn.identificationNumber = curentOwner.identificationNumber;
+                ownerForReturn.note = curentOwner.note;
+                ownerForReturn.ownerName = curentOwner.ownerName;
+                ownerForReturn.ownerSurname = curentOwner.ownerSurname;
+                ownerForReturn.parcelOwnerId = curentOwner.parcelOwnersId;
+                ownerForReturn.phone = curentOwner.phone;
+                ownerForReturn.zipNumber = curentOwner.zipNumber;
+
+                return ownerForReturn;
             }
             else {
                 return new RequestResponse(2046, "Parcel owner can not be found");

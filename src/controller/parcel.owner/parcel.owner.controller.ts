@@ -13,12 +13,12 @@ export class ParcelOwnersController {
 
     // Service for adding new parcel owner
     @Post()
-    async addOwner(@Body() data: AddParcelOwnerDto, @Req() req: Request): Promise<RequestResponse> {
+    async addOwner(@Body() data: AddParcelOwnerDto, @Req() req: Request): Promise<RequestResponse | GetParcelOwnerDto[]> {
         return await this.parcelOwnersService.addOwner(data, req);
     }
 
     @Put(":id")
-    async editOwner(@Param("id", ParseIntPipe) ownerId: number, @Body() data: EditParcelOwnerDto, @Req() req: Request): Promise<RequestResponse> {
+    async editOwner(@Param("id", ParseIntPipe) ownerId: number, @Body() data: EditParcelOwnerDto, @Req() req: Request): Promise<RequestResponse | GetParcelOwnerDto> {
         return await this.parcelOwnersService.editOwner(ownerId, data, req);
     }
 
